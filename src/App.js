@@ -1,49 +1,42 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import CardList from './components/card-list/CardList';
 import SearchBox from './components/search-box/SearchBox';
 
 import './App.css';
 
-class App extends Component {
-  constructor() {
-    super();
+const App = () => {
+  const [query, setQuery] = useState('');
+  const [monsters, setMonsters] = useState([]);
+  const [filterMonsters, setFilterMonsters] = useState(monsters);
 
-    this.state = {
-      query: '',
-      monsters: [],
-    };
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/users')
       .then((response) => response.json())
-      .then((data) => this.setState({ monsters: data }));
-  }
+      .then((data) => setMonsters(data));
+  }, []);
 
-  onSearchChange = (e) => {
-    this.setState({ query: e.target.value.toLowerCase() });
-  };
-
-  render() {
-    const { monsters, query } = this.state;
-    const { onSearchChange } = this;
-
-    const filterMonsters = monsters.filter((monster) => {
+  useEffect(() => {
+    const newfilterMonsters = monsters.filter((monster) => {
       return monster.name.toLowerCase().includes(query);
     });
+    setFilterMonsters(newfilterMonsters);
+  }, [monsters, query]);
 
-    return (
-      <div className="App">
-        <h1 className="app-title">Monster rolex</h1>
-        <SearchBox
-          onChangeHandler={onSearchChange}
-          placeholder="monster search"
-          className="monsters-search-box"
-        />
-        <CardList monsters={filterMonsters} />
-      </div>
-    );
-  }
-}
+  const onSearchChange = (e) => {
+    setQuery(e.target.value.toLowerCase());
+  };
+
+  return (
+    <div className="App">
+      <h1 className="app-title">Monster rolex</h1>
+      <SearchBox
+        onChangeHandler={onSearchChange}
+        placeholder="monster search"
+        className="monsters-search-box"
+      />
+      <CardList monsters={filterMonsters} />
+    </div>
+  );
+};
 
 export default App;
